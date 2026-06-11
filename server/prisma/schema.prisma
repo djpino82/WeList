@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolColaborador {
+  PROPIETARIO
+  EDITOR
+  LECTOR
+}
+
+model Usuario {
+  id           String   @id @default(cuid())
+  nombre       String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  listasPropias        Lista[]
+  colaboraciones       ColaboradorLista[]
+  invitacionesEnviadas Invitacion[]  @relation("invitacionesEnviadas")
+  invitacionesRecibidas Invitacion[] @relation("invitacionesRecibidas")
+
+  @@map("usuarios")
+}
+
+model Lista {
+  id          String    @id @default(cuid())
+  nombre      String
+  descripcion String?
+  eliminadoEn DateTime? @map("eliminado_en")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  propietarioId String  @map("propietario_id")
+  propietario   Usuario @relation(fields: [propietarioId], references: [id])
+
+  elementos     Elemento[]
+  colaboradores ColaboradorLista[]
+  invitaciones  Invitacion[]
+
+  @@index([propietarioId])
+  @@map("listas")
+}
+
+model Elemento {
+  id         String   @id @default(cuid())
+  texto      String
+  completado Boolean  @default(false)
+  posicion   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  listaId String @map("lista_id")
+  lista   Lista  @relation(fields: [listaId], references: [id])
+
+  @@index([listaId])
+  @@map("elementos")
+}
+
+model ColaboradorLista {
+  id  String         @id @default(cuid())
+  rol RolColaborador @default(LECTOR)
+
+  usuarioId String  @map("usuario_id")
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  listaId   String  @map("lista_id")
+  lista     Lista   @relation(fields: [listaId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([usuarioId, listaId])
+  @@index([listaId])
+  @@index([usuarioId])
+  @@map("colaboradores_lista")
+}
+
+model Invitacion {
+  id         String         @id @default(cuid())
+  token      String         @unique
+  email      String
+  rol        RolColaborador @default(EDITOR)
+  aceptada   Boolean        @default(false)
+  pendiente  Boolean        @default(true)
+  expiracion DateTime
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  emisorId   String   @map("emisor_id")
+  emisor     Usuario  @relation("invitacionesEnviadas", fields: [emisorId], references: [id])
+  receptorId String?  @map("receptor_id")
+  receptor   Usuario? @relation("invitacionesRecibidas", fields: [receptorId], references: [id])
+  listaId    String   @map("lista_id")
+  lista      Lista    @relation(fields: [listaId], references: [id])
+
+  @@index([token])
+  @@index([email])
+  @@index([listaId])
+  @@map("invitaciones")
+}

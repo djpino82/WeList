@@ -1,0 +1,19 @@
+{
+  "name": "welist-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplicación de listas colaborativas en tiempo real",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "db:migrate": "cd server && npm run db:migrate",
+    "db:deploy": "cd server && npm run db:deploy"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
