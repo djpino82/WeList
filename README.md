@@ -9,7 +9,7 @@ Aplicación de listas colaborativas en tiempo real. Crea, comparte y organiza li
 
 ## Demo
 
-[https://welist.vercel.app](https://welist.vercel.app)
+[https://we-list-eosin.vercel.app](https://we-list-eosin.vercel.app)
 
 ## Características
 
