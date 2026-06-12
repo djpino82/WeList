@@ -13,7 +13,16 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || CLIENT_URL.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 
