@@ -57,9 +57,8 @@ function SortableElemento({
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated touch-none cursor-grab active:cursor-grabbing ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
+      onClick={() => toggleMutation.mutate(elemento.id)}
+      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
     >
       {editandoItemId === elemento.id ? (
         <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
@@ -81,23 +80,25 @@ function SortableElemento({
         </form>
       ) : (
         <div className="flex items-center gap-3">
-          {/* Drag handle - desktop only */}
+          {/* Drag handle */}
           <button
-            className="hidden sm:flex w-8 h-8 rounded-xl items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing"
-            tabIndex={-1}
+            {...attributes}
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+            title="Arrastrar"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
             </svg>
           </button>
 
-          {/* Checkbox */}
-          <button
-            onClick={() => toggleMutation.mutate(elemento.id)}
+          {/* Checkbox (visual) */}
+          <div
             className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
               elemento.completado
                 ? 'bg-brand-500 border-brand-500'
-                : 'border-surface-300 hover:border-brand-400'
+                : 'border-surface-300'
             }`}
           >
             {elemento.completado && (
@@ -105,7 +106,7 @@ function SortableElemento({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             )}
-          </button>
+          </div>
 
           {/* Text */}
           <span
