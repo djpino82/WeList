@@ -84,7 +84,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right panel - Form */}
-      <div className="min-h-screen lg:min-h-0 flex-1 flex items-center justify-center p-6 sm:p-8 bg-surface-50">
+      <div className="min-h-screen lg:min-h-0 flex-1 flex items-center justify-center p-6 sm:p-8 bg-surface-50 overflow-y-auto">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center">

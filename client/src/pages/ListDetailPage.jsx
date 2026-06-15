@@ -431,7 +431,7 @@ export default function ListDetailPage() {
                   </form>
                 ) : (
                   /* View mode */
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => toggleMutation.mutate(elemento.id)}>
                     {/* Checkbox */}
                     <button
                       onClick={() => toggleMutation.mutate(elemento.id)}
@@ -460,7 +460,7 @@ export default function ListDetailPage() {
                     {/* Action buttons - always visible */}
                     <div className="flex gap-1 flex-shrink-0">
                       <button
-                        onClick={() => iniciarEdicionItem(elemento)}
+                        onClick={(e) => { e.stopPropagation(); iniciarEdicionItem(elemento); }}
                         className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-blue-50 hover:text-blue-500 active:bg-blue-100 transition-colors"
                         title="Editar"
                       >
@@ -469,7 +469,8 @@ export default function ListDetailPage() {
                         </svg>
                       </button>
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (confirm('¿Eliminar este elemento?')) {
                             eliminarMutation.mutate(elemento.id);
                           }
