@@ -57,7 +57,9 @@ function SortableElemento({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
+      {...attributes}
+      {...listeners}
+      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated touch-none cursor-grab active:cursor-grabbing ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
     >
       {editandoItemId === elemento.id ? (
         <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
@@ -79,12 +81,10 @@ function SortableElemento({
         </form>
       ) : (
         <div className="flex items-center gap-3">
-          {/* Drag handle */}
+          {/* Drag handle - desktop only */}
           <button
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
-            {...attributes}
-            {...listeners}
-            title="Arrastrar"
+            className="hidden sm:flex w-8 h-8 rounded-xl items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing"
+            tabIndex={-1}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
@@ -237,17 +237,20 @@ export default function ListDetailPage() {
     if (id) {
       unirseALista(id);
 
+      const handleConnect = () => unirseALista(id);
       const handleElementoCreado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoCompletado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
 
+      escucharEvento('connect', handleConnect);
       escucharEvento('elemento-creado', handleElementoCreado);
       escucharEvento('elemento-completado', handleElementoCompletado);
       escucharEvento('elemento-eliminado', handleElementoEliminado);
       escucharEvento('elementos-reordenados', handleElementosReordenados);
 
       return () => {
+        dejarDeEscuchar('connect', handleConnect);
         dejarDeEscuchar('elemento-creado', handleElementoCreado);
         dejarDeEscuchar('elemento-completado', handleElementoCompletado);
         dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
@@ -346,6 +349,18 @@ export default function ListDetailPage() {
   const total = elementos?.length || 0;
   const porcentaje = total > 0 ? Math.round((completados / total) * 100) : 0;
 
+  const colaboradores = lista?.colaboradores?.filter((c) => c.usuario.id !== usuario?.id) || [];
+
+  const COLORS = ['bg-brand-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-cyan-500'];
+  function getAvatarColor(nombre) {
+    let hash = 0;
+    for (let i = 0; i < nombre.length; i++) hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
+    return COLORS[Math.abs(hash) % COLORS.length];
+  }
+  function getInitials(nombre) {
+    return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+
   if (cargandoLista) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-50">
@@ -420,6 +435,26 @@ export default function ListDetailPage() {
             <p className="text-xs text-surface-400 mt-2">
               {completados} de {total} elementos completados
             </p>
+          </div>
+        )}
+
+        {/* Collaborators */}
+        {colaboradores.length > 0 && (
+          <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft mb-6 sm:mb-8">
+            <p className="text-xs sm:text-sm font-medium text-surface-600 mb-3">Compartido con</p>
+            <div className="flex flex-wrap gap-3">
+              {colaboradores.map((c) => (
+                <div key={c.usuario.id} className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full ${getAvatarColor(c.usuario.nombre)} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                    {getInitials(c.usuario.nombre)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-surface-700 truncate">{c.usuario.nombre}</p>
+                    <p className="text-xs text-surface-400">{c.rol === 'PROPIETARIO' ? 'Propietario' : c.rol === 'EDITOR' ? 'Editor' : 'Lector'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
