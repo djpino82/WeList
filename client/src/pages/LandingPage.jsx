@@ -8,7 +8,7 @@ export default function LandingPage() {
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-40 glass">
-        <div className="container mx-auto px-6 py-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center">
               <svg
