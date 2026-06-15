@@ -34,7 +34,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen lg:flex lg:items-center lg:justify-center">
       {/* Left panel - Visual */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 relative overflow-hidden">
         <div className="absolute inset-0">
@@ -84,7 +84,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-surface-50">
+      <div className="min-h-screen lg:min-h-0 flex-1 flex items-center justify-center p-6 sm:p-8 bg-surface-50">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center">
