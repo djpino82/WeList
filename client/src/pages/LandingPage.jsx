@@ -260,9 +260,9 @@ export default function LandingPage() {
 
             {/* Feature 3 */}
             <div className="card group">
-              <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-green-200 transition-colors">
+              <div className="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand-200 transition-colors">
                 <svg
-                  className="w-7 h-7 text-green-600"
+                  className="w-7 h-7 text-brand-600"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

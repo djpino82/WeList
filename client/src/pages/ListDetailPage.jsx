@@ -122,7 +122,7 @@ function SortableElemento({
           <div className="flex gap-1 flex-shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); iniciarEdicionItem(elemento); }}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-blue-50 hover:text-blue-500 active:bg-blue-100 transition-colors"
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-brand-50 hover:text-brand-600 active:bg-brand-100 transition-colors"
               title="Editar"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -353,7 +353,7 @@ export default function ListDetailPage() {
 
   const colaboradores = lista?.colaboradores?.filter((c) => c.usuario.id !== usuario?.id) || [];
 
-  const COLORS = ['bg-brand-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-cyan-500'];
+  const COLORS = ['bg-brand-500', 'bg-accent-400', 'bg-success-500', 'bg-brand-700', 'bg-accent-600', 'bg-brand-300'];
   function getAvatarColor(nombre) {
     let hash = 0;
     for (let i = 0; i < nombre.length; i++) hash = nombre.charCodeAt(i) + ((hash << 5) - hash);

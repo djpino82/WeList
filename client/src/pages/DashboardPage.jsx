@@ -277,7 +277,7 @@ export default function DashboardPage() {
                       <div className="flex gap-1">
                         <button
                           onClick={() => iniciarEdicion(lista)}
-                          className="w-8 h-8 rounded-xl bg-surface-100 flex items-center justify-center text-surface-400 hover:bg-blue-50 hover:text-blue-500 active:bg-blue-100 transition-colors"
+                           className="w-8 h-8 rounded-xl bg-surface-100 flex items-center justify-center text-surface-400 hover:bg-brand-50 hover:text-brand-600 active:bg-brand-100 transition-colors"
                           title="Editar lista"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
