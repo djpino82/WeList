@@ -75,7 +75,6 @@ cp client/.env.example client/.env
 |----------|-------------|
 | `DATABASE_URL` | URL de conexión a PostgreSQL (Neon) |
 | `JWT_SECRET` | Secreto para JWT (mínimo 32 caracteres) |
-| `RESEND_API_KEY` | API key de [Resend](https://resend.com) |
 | `CLIENT_URL` | URL del frontend (`http://localhost:5173` en desarrollo) |
 | `PORT` | Puerto del backend (`3001`) |
 
@@ -117,7 +116,6 @@ npm run dev
 2. Configurar Variables de Entorno:
    - `DATABASE_URL`: URL de Neon
    - `JWT_SECRET`: Secreto seguro
-   - `RESEND_API_KEY`: API key de Resend
    - `CLIENT_URL`: URL de Vercel
 3. Render ejecutará automáticamente `npm install` y `npm start`
 

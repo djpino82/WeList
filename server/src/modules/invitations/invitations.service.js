@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const prisma = require('../../config/database');
-const { enviarInvitacion } = require('../../utils/email');
+const { CLIENT_URL } = require('../../config/env');
 
 const EXPIRACION_HORAS = 72;
 
@@ -29,24 +29,24 @@ async function invitar(listaId, emisorId, email, rol) {
     throw error;
   }
 
-  const invitacionExistente = await prisma.invitacion.findFirst({
-    where: {
-      listaId,
-      email,
-      pendiente: true,
-      expiracion: { gt: new Date() },
-    },
-  });
+  if (email) {
+    const invitacionExistente = await prisma.invitacion.findFirst({
+      where: {
+        listaId,
+        email,
+        pendiente: true,
+        expiracion: { gt: new Date() },
+      },
+    });
 
-  if (invitacionExistente) {
-    const error = new Error('Ya existe una invitación pendiente para este email');
-    error.statusCode = 400;
-    throw error;
+    if (invitacionExistente) {
+      const error = new Error('Ya existe una invitación pendiente para este email');
+      error.statusCode = 400;
+      throw error;
+    }
   }
 
-  const receptor = await prisma.usuario.findUnique({
-    where: { email },
-  });
+  const receptor = email ? await prisma.usuario.findUnique({ where: { email } }) : null;
 
   const token = uuidv4();
   const expiracion = new Date();
@@ -55,7 +55,7 @@ async function invitar(listaId, emisorId, email, rol) {
   const invitacion = await prisma.invitacion.create({
     data: {
       token,
-      email,
+      email: email || `invitacion-${token.slice(0, 8)}@enlace`,
       rol,
       listaId,
       emisorId,
@@ -65,18 +65,12 @@ async function invitar(listaId, emisorId, email, rol) {
     },
   });
 
-  await enviarInvitacion(
-    email,
-    token,
-    lista.nombre,
-    lista.propietario.nombre
-  );
+  const enlace = `${CLIENT_URL[0]}/invitacion/${token}`;
 
   return {
-    mensaje: receptor
-      ? 'Invitación enviada. El usuario recibirá la lista automáticamente al iniciar sesión.'
-      : 'Invitación enviada por email.',
-    invitacion: { id: invitacion.id, email, rol },
+    mensaje: 'Enlace de invitación generado',
+    invitacion: { id: invitacion.id, email: invitacion.email, rol },
+    enlace,
   };
 }
 

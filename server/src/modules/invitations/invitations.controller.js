@@ -10,7 +10,7 @@ async function invitar(req, res, next) {
       email,
       rol
     );
-    return sendSuccess(res, resultado.mensaje, resultado.invitacion, 201);
+    return sendSuccess(res, resultado.mensaje, { ...resultado.invitacion, enlace: resultado.enlace }, 201);
   } catch (error) {
     next(error);
   }

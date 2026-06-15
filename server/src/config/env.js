@@ -3,7 +3,6 @@ require('dotenv').config();
 const requiredEnvVars = [
   'DATABASE_URL',
   'JWT_SECRET',
-  'RESEND_API_KEY',
   'CLIENT_URL',
 ];
 
@@ -18,7 +17,6 @@ if (missingVars.length > 0) {
 module.exports = {
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET: process.env.JWT_SECRET,
-  RESEND_API_KEY: process.env.RESEND_API_KEY,
   CLIENT_URL: process.env.CLIENT_URL.split(',').map(url => url.trim()),
   PORT: process.env.PORT || 3001,
 };

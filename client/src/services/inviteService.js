@@ -1,7 +1,7 @@
 import api from './api';
 
-export async function enviarInvitacion(listaId, email, rol = 'EDITOR') {
-  const response = await api.post(`/listas/${listaId}/invitar`, { email, rol });
+export async function crearInvitacion(listaId, rol = 'EDITOR') {
+  const response = await api.post(`/listas/${listaId}/invitar`, { rol });
   return response.data;
 }
 
