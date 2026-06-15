@@ -242,12 +242,14 @@ export default function ListDetailPage() {
       const handleConnect = () => unirseALista(id);
       const handleElementoCreado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoCompletado = () => queryClient.invalidateQueries(['elementos', id]);
+      const handleElementoActualizado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
 
       escucharEvento('connect', handleConnect);
       escucharEvento('elemento-creado', handleElementoCreado);
       escucharEvento('elemento-completado', handleElementoCompletado);
+      escucharEvento('elemento-actualizado', handleElementoActualizado);
       escucharEvento('elemento-eliminado', handleElementoEliminado);
       escucharEvento('elementos-reordenados', handleElementosReordenados);
 
@@ -255,6 +257,7 @@ export default function ListDetailPage() {
         dejarDeEscuchar('connect', handleConnect);
         dejarDeEscuchar('elemento-creado', handleElementoCreado);
         dejarDeEscuchar('elemento-completado', handleElementoCompletado);
+        dejarDeEscuchar('elemento-actualizado', handleElementoActualizado);
         dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
         dejarDeEscuchar('elementos-reordenados', handleElementosReordenados);
       };

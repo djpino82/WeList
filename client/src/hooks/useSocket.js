@@ -23,6 +23,12 @@ export function useSocket() {
     };
   }, [token]);
 
+  function unirseADashboard() {
+    if (socketRef.current) {
+      socketRef.current.emit('unirse-dashboard');
+    }
+  }
+
   function unirseALista(listaId) {
     if (socketRef.current) {
       socketRef.current.emit('unirse-lista', { listaId });
@@ -49,6 +55,7 @@ export function useSocket() {
 
   return {
     socket: socketRef.current,
+    unirseADashboard,
     unirseALista,
     salirDeLista,
     escucharEvento,

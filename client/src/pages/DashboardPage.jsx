@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../hooks/useSocket';
 import { obtenerListas, crearLista, editarLista, eliminarLista } from '../services/listService';
 import toast from 'react-hot-toast';
 
@@ -15,6 +16,28 @@ export default function DashboardPage() {
   const { usuario, logout } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { unirseADashboard, escucharEvento, dejarDeEscuchar } = useSocket();
+
+  useEffect(() => {
+    unirseADashboard();
+
+    const handleConnect = () => unirseADashboard();
+    const handleListaCreada = () => queryClient.invalidateQueries(['listas']);
+    const handleListaEditada = () => queryClient.invalidateQueries(['listas']);
+    const handleListaEliminada = () => queryClient.invalidateQueries(['listas']);
+
+    escucharEvento('connect', handleConnect);
+    escucharEvento('lista-creada', handleListaCreada);
+    escucharEvento('lista-editada', handleListaEditada);
+    escucharEvento('lista-eliminada', handleListaEliminada);
+
+    return () => {
+      dejarDeEscuchar('connect', handleConnect);
+      dejarDeEscuchar('lista-creada', handleListaCreada);
+      dejarDeEscuchar('lista-editada', handleListaEditada);
+      dejarDeEscuchar('lista-eliminada', handleListaEliminada);
+    };
+  }, []);
 
   const { data: listas, isLoading } = useQuery({
     queryKey: ['listas'],

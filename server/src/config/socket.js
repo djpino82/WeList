@@ -30,6 +30,11 @@ function configurarSocket(server) {
   io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.userId}`);
 
+    socket.on('unirse-dashboard', () => {
+      socket.join(`dashboard:${socket.userId}`);
+      console.log(`Usuario ${socket.userId} se unió a su dashboard`);
+    });
+
     socket.on('unirse-lista', async ({ listaId }) => {
       try {
         const colaborador = await prisma.colaboradorLista.findUnique({
