@@ -85,10 +85,11 @@ function SortableElemento({
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+            style={{ touchAction: 'none' }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing"
             title="Arrastrar"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
             </svg>
           </button>
