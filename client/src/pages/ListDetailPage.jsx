@@ -58,7 +58,7 @@ function SortableElemento({
       ref={setNodeRef}
       style={style}
       onClick={() => toggleMutation.mutate(elemento.id)}
-      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-shadow transition-opacity duration-200 hover:shadow-elevated ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
+      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-shadow transition-opacity duration-200 ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
     >
       {editandoItemId === elemento.id ? (
         <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
