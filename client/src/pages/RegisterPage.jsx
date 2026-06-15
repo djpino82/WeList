@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const [cargando, setCargando] = useState(false);
   const { registro } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,7 +27,7 @@ export default function RegisterPage() {
     try {
       await registro({ nombre, email, password });
       toast.success('Cuenta creada exitosamente');
-      navigate('/dashboard');
+      navigate(redirect || '/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error al crear cuenta');
     } finally {
@@ -101,7 +103,7 @@ export default function RegisterPage() {
             </h1>
             <p className="text-surface-500">
               ¿Ya tienes cuenta?{' '}
-              <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
+              <Link to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login'} className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
                 Inicia sesión
               </Link>
             </p>

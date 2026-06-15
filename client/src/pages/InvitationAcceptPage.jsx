@@ -94,10 +94,10 @@ export default function InvitationAcceptPage() {
             </p>
 
             <div className="space-y-3">
-              <Link to="/login" className="btn-primary w-full flex items-center justify-center gap-2">
+              <Link to={`/login?redirect=/invitacion/${token}`} className="btn-primary w-full flex items-center justify-center gap-2">
                 Iniciar sesión
               </Link>
-              <Link to="/registro" className="btn-secondary w-full flex items-center justify-center gap-2">
+              <Link to={`/registro?redirect=/invitacion/${token}`} className="btn-secondary w-full flex items-center justify-center gap-2">
                 Crear cuenta
               </Link>
             </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [cargando, setCargando] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -17,7 +19,7 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       toast.success('Inicio de sesión exitoso');
-      navigate('/dashboard');
+      navigate(redirect || '/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error al iniciar sesión');
     } finally {
@@ -109,7 +111,7 @@ export default function LoginPage() {
             </h1>
             <p className="text-surface-500">
               ¿No tienes cuenta?{' '}
-              <Link to="/registro" className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
+              <Link to={redirect ? `/registro?redirect=${encodeURIComponent(redirect)}` : '/registro'} className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
                 Regístrate aquí
               </Link>
             </p>
