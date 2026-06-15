@@ -8,11 +8,11 @@ export default function LandingPage() {
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-40 glass">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center">
+        <div className="container mx-auto px-6 py-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow">
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -25,7 +25,7 @@ export default function LandingPage() {
                 />
               </svg>
             </div>
-            <span className="font-display font-semibold text-xl text-surface-800">
+            <span className="font-display font-bold text-xl sm:text-2xl gradient-text">
               WeList
             </span>
           </Link>
@@ -379,7 +379,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center shadow-glow">
                 <svg
                   className="w-4 h-4 text-white"
                   fill="none"
@@ -394,7 +394,7 @@ export default function LandingPage() {
                   />
                 </svg>
               </div>
-              <span className="font-display font-semibold text-white">
+              <span className="font-display font-bold text-lg gradient-text">
                 WeList
               </span>
             </div>
