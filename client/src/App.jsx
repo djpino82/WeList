@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ListDetailPage from './pages/ListDetailPage';
+import InvitationAcceptPage from './pages/InvitationAcceptPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -85,6 +86,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/invitacion/:token" element={<InvitationAcceptPage />} />
     </Routes>
   );
 }
