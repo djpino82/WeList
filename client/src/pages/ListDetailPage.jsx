@@ -20,7 +20,6 @@ export default function ListDetailPage() {
   const [mostrarInvitacion, setMostrarInvitacion] = useState(false);
   const [enlaceInvitacion, setEnlaceInvitacion] = useState('');
   const [copiado, setCopiado] = useState(false);
-  const [mostrarInvitacion, setMostrarInvitacion] = useState(false);
   const [editandoItemId, setEditandoItemId] = useState(null);
   const [textoEdit, setTextoEdit] = useState('');
   const { usuario, logout } = useAuth();
