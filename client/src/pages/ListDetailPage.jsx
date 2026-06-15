@@ -10,9 +10,143 @@ import {
   editarElemento,
   toggleCompletado,
   eliminarElemento,
+  reordenarElementos,
 } from '../services/itemService';
 import { crearInvitacion } from '../services/inviteService';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import toast from 'react-hot-toast';
+
+function SortableElemento({
+  elemento,
+  editandoItemId,
+  textoEdit,
+  setTextoEdit,
+  handleEditarElemento,
+  cancelarEdicionItem,
+  editarMutation,
+  toggleMutation,
+  iniciarEdicionItem,
+  eliminarMutation,
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: elemento.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 'auto',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
+    >
+      {editandoItemId === elemento.id ? (
+        <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
+          <input
+            type="text"
+            value={textoEdit}
+            onChange={(e) => setTextoEdit(e.target.value)}
+            className="input-field text-sm"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={cancelarEdicionItem} className="btn-ghost text-xs px-3 py-1.5">
+              Cancelar
+            </button>
+            <button type="submit" disabled={editarMutation.isLoading || !textoEdit.trim()} className="btn-primary text-xs px-3 py-1.5">
+              Guardar
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-center gap-3">
+          {/* Drag handle */}
+          <button
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-surface-100 hover:text-surface-500 active:bg-surface-200 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+            {...attributes}
+            {...listeners}
+            title="Arrastrar"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+
+          {/* Checkbox */}
+          <button
+            onClick={() => toggleMutation.mutate(elemento.id)}
+            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
+              elemento.completado
+                ? 'bg-brand-500 border-brand-500'
+                : 'border-surface-300 hover:border-brand-400'
+            }`}
+          >
+            {elemento.completado && (
+              <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+
+          {/* Text */}
+          <span
+            className={`flex-1 text-sm sm:text-base transition-all duration-200 min-w-0 ${
+              elemento.completado ? 'line-through text-surface-400' : 'text-surface-700'
+            }`}
+          >
+            {elemento.texto}
+          </span>
+
+          {/* Action buttons */}
+          <div className="flex gap-1 flex-shrink-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); iniciarEdicionItem(elemento); }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-blue-50 hover:text-blue-500 active:bg-blue-100 transition-colors"
+              title="Editar"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm('¿Eliminar este elemento?')) {
+                  eliminarMutation.mutate(elemento.id);
+                }
+              }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors"
+              title="Eliminar"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ListDetailPage() {
   const { id } = useParams();
@@ -81,6 +215,13 @@ export default function ListDetailPage() {
     },
   });
 
+  const reordenarMutation = useMutation({
+    mutationFn: (orden) => reordenarElementos(id, orden),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['elementos', id]);
+    },
+  });
+
   const invitacionMutation = useMutation({
     mutationFn: () => crearInvitacion(id),
     onSuccess: (data) => {
@@ -99,15 +240,18 @@ export default function ListDetailPage() {
       const handleElementoCreado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoCompletado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
+      const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
 
       escucharEvento('elemento-creado', handleElementoCreado);
       escucharEvento('elemento-completado', handleElementoCompletado);
       escucharEvento('elemento-eliminado', handleElementoEliminado);
+      escucharEvento('elementos-reordenados', handleElementosReordenados);
 
       return () => {
         dejarDeEscuchar('elemento-creado', handleElementoCreado);
         dejarDeEscuchar('elemento-completado', handleElementoCompletado);
         dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
+        dejarDeEscuchar('elementos-reordenados', handleElementosReordenados);
       };
     }
   }, [id]);
@@ -177,6 +321,25 @@ export default function ListDetailPage() {
     setMostrarInvitacion(false);
     setEnlaceInvitacion('');
     setCopiado(false);
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = elementos.findIndex((e) => e.id === active.id);
+    const newIndex = elementos.findIndex((e) => e.id === over.id);
+    const nuevoOrden = arrayMove(elementos, oldIndex, newIndex);
+
+    queryClient.setQueryData(['elementos', id], nuevoOrden);
+
+    const orden = nuevoOrden.map((e, i) => ({ id: e.id, posicion: i }));
+    reordenarMutation.mutate(orden);
   }
 
   const completados = elementos?.filter((e) => e.completado).length || 0;
@@ -393,102 +556,39 @@ export default function ListDetailPage() {
         )}
 
         {/* Elements list */}
-        <div className="space-y-2 sm:space-y-3">
-          {elementos?.length === 0 ? (
-            <div className="text-center py-12 sm:py-16">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-7 h-7 sm:w-8 sm:h-8 text-surface-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <p className="text-surface-500 font-medium mb-1 text-sm sm:text-base">No hay elementos aún</p>
-              <p className="text-surface-400 text-xs sm:text-sm">Añade el primer elemento usando el campo de arriba</p>
-            </div>
-          ) : (
-            elementos?.map((elemento) => (
-              <div
-                key={elemento.id}
-                className="bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-all duration-200 hover:shadow-elevated"
-              >
-                {editandoItemId === elemento.id ? (
-                  /* Edit mode */
-                  <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
-                    <input
-                      type="text"
-                      value={textoEdit}
-                      onChange={(e) => setTextoEdit(e.target.value)}
-                      className="input-field text-sm"
-                      autoFocus
-                    />
-                    <div className="flex justify-end gap-2">
-                      <button type="button" onClick={cancelarEdicionItem} className="btn-ghost text-xs px-3 py-1.5">
-                        Cancelar
-                      </button>
-                      <button type="submit" disabled={editarMutation.isLoading || !textoEdit.trim()} className="btn-primary text-xs px-3 py-1.5">
-                        Guardar
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  /* View mode */
-                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => toggleMutation.mutate(elemento.id)}>
-                    {/* Checkbox */}
-                    <button
-                      onClick={() => toggleMutation.mutate(elemento.id)}
-                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
-                        elemento.completado
-                          ? 'bg-brand-500 border-brand-500'
-                          : 'border-surface-300 hover:border-brand-400'
-                      }`}
-                    >
-                      {elemento.completado && (
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </button>
-
-                    {/* Text */}
-                    <span
-                      className={`flex-1 text-sm sm:text-base transition-all duration-200 min-w-0 ${
-                        elemento.completado ? 'line-through text-surface-400' : 'text-surface-700'
-                      }`}
-                    >
-                      {elemento.texto}
-                    </span>
-
-                    {/* Action buttons - always visible */}
-                    <div className="flex gap-1 flex-shrink-0">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); iniciarEdicionItem(elemento); }}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-blue-50 hover:text-blue-500 active:bg-blue-100 transition-colors"
-                        title="Editar"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm('¿Eliminar este elemento?')) {
-                            eliminarMutation.mutate(elemento.id);
-                          }
-                        }}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors"
-                        title="Eliminar"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={elementos?.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2 sm:space-y-3">
+              {elementos?.length === 0 ? (
+                <div className="text-center py-12 sm:py-16">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-7 h-7 sm:w-8 sm:h-8 text-surface-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
                   </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+                  <p className="text-surface-500 font-medium mb-1 text-sm sm:text-base">No hay elementos aún</p>
+                  <p className="text-surface-400 text-xs sm:text-sm">Añade el primer elemento usando el campo de arriba</p>
+                </div>
+              ) : (
+                elementos?.map((elemento) => (
+                  <SortableElemento
+                    key={elemento.id}
+                    elemento={elemento}
+                    editandoItemId={editandoItemId}
+                    textoEdit={textoEdit}
+                    setTextoEdit={setTextoEdit}
+                    handleEditarElemento={handleEditarElemento}
+                    cancelarEdicionItem={cancelarEdicionItem}
+                    editarMutation={editarMutation}
+                    toggleMutation={toggleMutation}
+                    iniciarEdicionItem={iniciarEdicionItem}
+                    eliminarMutation={eliminarMutation}
+                  />
+                ))
+              )}
+            </div>
+          </SortableContext>
+        </DndContext>
       </main>
     </div>
   );

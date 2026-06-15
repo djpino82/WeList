@@ -24,3 +24,8 @@ export async function eliminarElemento(listaId, elementoId) {
   const response = await api.delete(`/listas/${listaId}/elementos/${elementoId}`);
   return response.data;
 }
+
+export async function reordenarElementos(listaId, orden) {
+  const response = await api.put(`/listas/${listaId}/elementos/orden`, { orden });
+  return response.data;
+}

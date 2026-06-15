@@ -38,7 +38,7 @@ async function obtenerListas(usuarioId) {
         select: { id: true, nombre: true, email: true },
       },
       _count: {
-        select: { elementos: true },
+        select: { elementos: true, colaboradores: true },
       },
     },
     orderBy: { createdAt: 'desc' },

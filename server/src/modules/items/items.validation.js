@@ -16,4 +16,15 @@ const editarElementoSchema = z.object({
   completado: z.boolean().optional(),
 });
 
-module.exports = { crearElementoSchema, editarElementoSchema };
+const reordenarElementosSchema = z.object({
+  orden: z
+    .array(
+      z.object({
+        id: z.string().min(1, 'El ID es requerido'),
+        posicion: z.number().int().min(0, 'La posición debe ser un número positivo'),
+      })
+    )
+    .min(1, 'El orden no puede estar vacío'),
+});
+
+module.exports = { crearElementoSchema, editarElementoSchema, reordenarElementosSchema };

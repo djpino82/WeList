@@ -134,10 +134,32 @@ async function eliminarElemento(listaId, elementoId, usuarioId) {
   return { message: 'Elemento eliminado' };
 }
 
+async function reordenarElementos(listaId, usuarioId, orden) {
+  const colaborador = await verificarAcceso(listaId, usuarioId);
+
+  if (!colaborador || colaborador.rol === 'LECTOR') {
+    const error = new Error('No tienes permisos para reordenar elementos');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  await prisma.$transaction(
+    orden.map((item) =>
+      prisma.elemento.update({
+        where: { id: item.id },
+        data: { posicion: item.posicion },
+      })
+    )
+  );
+
+  return { message: 'Elementos reordenados' };
+}
+
 module.exports = {
   obtenerElementos,
   crearElemento,
   editarElemento,
   toggleCompletado,
   eliminarElemento,
+  reordenarElementos,
 };
