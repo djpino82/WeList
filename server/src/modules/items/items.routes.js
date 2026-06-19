@@ -18,6 +18,8 @@ router.put('/:id', validate(editarElementoSchema), itemsController.editarElement
 
 router.patch('/:id/completar', itemsController.toggleCompletado);
 
+router.delete('/', itemsController.eliminarTodosLosElementos);
+
 router.delete('/:id', itemsController.eliminarElemento);
 
 module.exports = router;

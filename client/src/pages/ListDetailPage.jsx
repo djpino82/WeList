@@ -10,6 +10,7 @@ import {
   editarElemento,
   toggleCompletado,
   eliminarElemento,
+  eliminarTodosLosElementos,
   reordenarElementos,
 } from '../services/itemService';
 import { crearInvitacion } from '../services/inviteService';
@@ -61,7 +62,7 @@ function SortableElemento({
       className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-shadow transition-opacity duration-200 ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
     >
       {editandoItemId === elemento.id ? (
-        <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
+        <form onClick={(e) => e.stopPropagation()} onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
           <input
             type="text"
             value={textoEdit}
@@ -171,7 +172,7 @@ export default function ListDetailPage() {
     },
   });
 
-  const { data: elementos } = useQuery({
+  const { data: elementos, isLoading: cargandoElementos } = useQuery({
     queryKey: ['elementos', id],
     queryFn: async () => {
       const response = await obtenerElementos(id);
@@ -217,6 +218,17 @@ export default function ListDetailPage() {
     },
   });
 
+  const vaciarListaMutation = useMutation({
+    mutationFn: () => eliminarTodosLosElementos(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['elementos', id]);
+      toast.success('Lista vaciada');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Error al vaciar lista');
+    },
+  });
+
   const reordenarMutation = useMutation({
     mutationFn: (orden) => reordenarElementos(id, orden),
     onSuccess: () => {
@@ -245,6 +257,7 @@ export default function ListDetailPage() {
       const handleElementoActualizado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
       const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
+      const handleElementosEliminados = () => queryClient.invalidateQueries(['elementos', id]);
 
       escucharEvento('connect', handleConnect);
       escucharEvento('elemento-creado', handleElementoCreado);
@@ -252,6 +265,7 @@ export default function ListDetailPage() {
       escucharEvento('elemento-actualizado', handleElementoActualizado);
       escucharEvento('elemento-eliminado', handleElementoEliminado);
       escucharEvento('elementos-reordenados', handleElementosReordenados);
+      escucharEvento('elementos-eliminados', handleElementosEliminados);
 
       return () => {
         dejarDeEscuchar('connect', handleConnect);
@@ -260,6 +274,7 @@ export default function ListDetailPage() {
         dejarDeEscuchar('elemento-actualizado', handleElementoActualizado);
         dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
         dejarDeEscuchar('elementos-reordenados', handleElementosReordenados);
+        dejarDeEscuchar('elementos-eliminados', handleElementosEliminados);
       };
     }
   }, [id]);
@@ -331,6 +346,12 @@ export default function ListDetailPage() {
     setCopiado(false);
   }
 
+  function handleVaciarLista() {
+    if (confirm('¿Estás seguro de eliminar todos los elementos de esta lista?')) {
+      vaciarListaMutation.mutate();
+    }
+  }
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
@@ -366,7 +387,7 @@ export default function ListDetailPage() {
     return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
   }
 
-  if (cargandoLista) {
+  if (cargandoLista || cargandoElementos) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-50">
         <div className="flex flex-col items-center gap-4">
@@ -410,6 +431,18 @@ export default function ListDetailPage() {
               </svg>
               <span className="hidden sm:inline">Invitar</span>
             </button>
+            {elementos && elementos.length > 0 && (
+              <button
+                onClick={handleVaciarLista}
+                disabled={vaciarListaMutation.isLoading}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-100 flex items-center justify-center text-surface-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors flex-shrink-0"
+                title="Vaciar lista"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
             <button
               onClick={() => { logout(); navigate('/'); }}
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-100 flex items-center justify-center text-surface-400 hover:bg-red-50 hover:text-red-500 transition-colors"

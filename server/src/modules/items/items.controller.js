@@ -104,6 +104,26 @@ async function eliminarElemento(req, res, next) {
   }
 }
 
+async function eliminarTodosLosElementos(req, res, next) {
+  try {
+    const resultado = await itemsService.eliminarTodosLosElementos(
+      req.params.listaId,
+      req.usuario.id
+    );
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`lista:${req.params.listaId}`).emit('elementos-eliminados', {
+        listaId: req.params.listaId,
+      });
+    }
+
+    return sendSuccess(res, resultado.message);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function reordenarElementos(req, res, next) {
   try {
     const resultado = await itemsService.reordenarElementos(
@@ -132,5 +152,6 @@ module.exports = {
   editarElemento,
   toggleCompletado,
   eliminarElemento,
+  eliminarTodosLosElementos,
   reordenarElementos,
 };

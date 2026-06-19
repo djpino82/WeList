@@ -134,6 +134,22 @@ async function eliminarElemento(listaId, elementoId, usuarioId) {
   return { message: 'Elemento eliminado' };
 }
 
+async function eliminarTodosLosElementos(listaId, usuarioId) {
+  const colaborador = await verificarAcceso(listaId, usuarioId);
+
+  if (!colaborador || colaborador.rol === 'LECTOR') {
+    const error = new Error('No tienes permisos para eliminar elementos');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const { count } = await prisma.elemento.deleteMany({
+    where: { listaId },
+  });
+
+  return { message: `${count} elemento(s) eliminado(s)`, count };
+}
+
 async function reordenarElementos(listaId, usuarioId, orden) {
   const colaborador = await verificarAcceso(listaId, usuarioId);
 
@@ -161,5 +177,6 @@ module.exports = {
   editarElemento,
   toggleCompletado,
   eliminarElemento,
+  eliminarTodosLosElementos,
   reordenarElementos,
 };
