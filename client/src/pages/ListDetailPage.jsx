@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../hooks/useSocket';
-import { obtenerListaPorId, eliminarLista } from '../services/listService';
+import { obtenerListaPorId } from '../services/listService';
 import {
   obtenerElementos,
   crearElemento,
@@ -61,7 +61,7 @@ function SortableElemento({
       className={`bg-white rounded-2xl p-3 sm:p-4 shadow-soft transition-shadow transition-opacity duration-200 ${isDragging ? 'shadow-elevated ring-2 ring-brand-400' : ''}`}
     >
       {editandoItemId === elemento.id ? (
-        <form onClick={(e) => e.stopPropagation()} onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
+        <form onSubmit={(e) => handleEditarElemento(e, elemento.id)} className="space-y-2">
           <input
             type="text"
             value={textoEdit}
@@ -171,7 +171,7 @@ export default function ListDetailPage() {
     },
   });
 
-  const { data: elementos, isLoading: cargandoElementos } = useQuery({
+  const { data: elementos } = useQuery({
     queryKey: ['elementos', id],
     queryFn: async () => {
       const response = await obtenerElementos(id);
@@ -232,18 +232,6 @@ export default function ListDetailPage() {
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Error al generar enlace');
-    },
-  });
-
-  const eliminarListaMutation = useMutation({
-    mutationFn: () => eliminarLista(id),
-    onSuccess: () => {
-      toast.success('Lista eliminada');
-      queryClient.invalidateQueries(['listas']);
-      navigate('/dashboard');
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Error al eliminar lista');
     },
   });
 
@@ -343,12 +331,6 @@ export default function ListDetailPage() {
     setCopiado(false);
   }
 
-  function handleEliminarLista() {
-    if (confirm('¿Estás seguro de eliminar esta lista? Se borrarán todos sus elementos.')) {
-      eliminarListaMutation.mutate();
-    }
-  }
-
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
@@ -384,7 +366,7 @@ export default function ListDetailPage() {
     return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
   }
 
-  if (cargandoLista || cargandoElementos) {
+  if (cargandoLista) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-50">
         <div className="flex flex-col items-center gap-4">
@@ -427,16 +409,6 @@ export default function ListDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
               <span className="hidden sm:inline">Invitar</span>
-            </button>
-            <button
-              onClick={handleEliminarLista}
-              disabled={eliminarListaMutation.isLoading}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-100 flex items-center justify-center text-surface-400 hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors flex-shrink-0"
-              title="Eliminar lista"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
             </button>
             <button
               onClick={() => { logout(); navigate('/'); }}
