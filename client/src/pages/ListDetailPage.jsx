@@ -122,8 +122,8 @@ function SortableElemento({
           {/* Action buttons */}
           <div className="flex gap-1 flex-shrink-0">
             <button
-              onClick={(e) => { e.stopPropagation(); iniciarEdicionItem(elemento); }}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-brand-50 hover:text-brand-600 active:bg-brand-100 transition-colors"
+              onClick={(e) => { e.stopPropagation(); e.target.blur(); iniciarEdicionItem(elemento); }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-brand-50 hover:text-brand-600 active:bg-brand-100 focus:outline-none transition-colors"
               title="Editar"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,11 +133,12 @@ function SortableElemento({
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                e.target.blur();
                 if (confirm('¿Eliminar este elemento?')) {
                   eliminarMutation.mutate(elemento.id);
                 }
               }}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors"
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-surface-300 hover:bg-red-50 hover:text-red-500 active:bg-red-100 focus:outline-none transition-colors"
               title="Eliminar"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,7 +206,20 @@ export default function ListDetailPage() {
 
   const toggleMutation = useMutation({
     mutationFn: (elementoId) => toggleCompletado(id, elementoId),
-    onSuccess: () => {
+    onMutate: async (elementoId) => {
+      await queryClient.cancelQueries(['elementos', id]);
+      const previous = queryClient.getQueryData(['elementos', id]);
+      queryClient.setQueryData(['elementos', id], (old) =>
+        old.map((el) =>
+          el.id === elementoId ? { ...el, completado: !el.completado } : el
+        )
+      );
+      return { previous };
+    },
+    onError: (err, elementoId, context) => {
+      queryClient.setQueryData(['elementos', id], context.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries(['elementos', id]);
     },
   });
