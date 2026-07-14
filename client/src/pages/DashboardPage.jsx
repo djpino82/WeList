@@ -16,9 +16,11 @@ export default function DashboardPage() {
   const { usuario, logout } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { unirseADashboard, escucharEvento, dejarDeEscuchar } = useSocket();
+  const { socket, unirseADashboard, escucharEvento, dejarDeEscuchar } = useSocket();
 
   useEffect(() => {
+    if (!socket) return;
+
     unirseADashboard();
 
     const handleConnect = () => unirseADashboard();
@@ -37,7 +39,7 @@ export default function DashboardPage() {
       dejarDeEscuchar('lista-editada', handleListaEditada);
       dejarDeEscuchar('lista-eliminada', handleListaEliminada);
     };
-  }, []);
+  }, [socket, unirseADashboard, escucharEvento, dejarDeEscuchar, queryClient]);
 
   const { data: listas, isLoading } = useQuery({
     queryKey: ['listas'],

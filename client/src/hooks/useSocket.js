@@ -1,60 +1,64 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { SOCKET_URL } from '../utils/constants';
 import { useAuth } from '../context/AuthContext';
 
 export function useSocket() {
+  const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
   const { token } = useAuth();
 
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(SOCKET_URL, {
+    const newSocket = io(SOCKET_URL, {
       auth: { token },
       autoConnect: false,
     });
 
-    socket.connect();
-    socketRef.current = socket;
+    newSocket.connect();
+    socketRef.current = newSocket;
+    setSocket(newSocket);
 
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
+      socketRef.current = null;
+      setSocket(null);
     };
   }, [token]);
 
-  function unirseADashboard() {
+  const unirseADashboard = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.emit('unirse-dashboard');
     }
-  }
+  }, []);
 
-  function unirseALista(listaId) {
+  const unirseALista = useCallback((listaId) => {
     if (socketRef.current) {
       socketRef.current.emit('unirse-lista', { listaId });
     }
-  }
+  }, []);
 
-  function salirDeLista(listaId) {
+  const salirDeLista = useCallback((listaId) => {
     if (socketRef.current) {
       socketRef.current.emit('salir-lista', { listaId });
     }
-  }
+  }, []);
 
-  function escucharEvento(evento, callback) {
+  const escucharEvento = useCallback((evento, callback) => {
     if (socketRef.current) {
       socketRef.current.on(evento, callback);
     }
-  }
+  }, []);
 
-  function dejarDeEscuchar(evento, callback) {
+  const dejarDeEscuchar = useCallback((evento, callback) => {
     if (socketRef.current) {
       socketRef.current.off(evento, callback);
     }
-  }
+  }, []);
 
   return {
-    socket: socketRef.current,
+    socket,
     unirseADashboard,
     unirseALista,
     salirDeLista,

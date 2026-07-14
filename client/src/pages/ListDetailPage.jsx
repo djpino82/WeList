@@ -162,7 +162,7 @@ export default function ListDetailPage() {
   const [textoEdit, setTextoEdit] = useState('');
   const { usuario, logout } = useAuth();
   const queryClient = useQueryClient();
-  const { unirseALista, escucharEvento, dejarDeEscuchar } = useSocket();
+  const { socket, unirseALista, escucharEvento, dejarDeEscuchar } = useSocket();
   const navigate = useNavigate();
 
   const { data: lista, isLoading: cargandoLista } = useQuery({
@@ -262,36 +262,36 @@ export default function ListDetailPage() {
   });
 
   useEffect(() => {
-    if (id) {
-      unirseALista(id);
+    if (!socket || !id) return;
 
-      const handleConnect = () => unirseALista(id);
-      const handleElementoCreado = () => queryClient.invalidateQueries(['elementos', id]);
-      const handleElementoCompletado = () => queryClient.invalidateQueries(['elementos', id]);
-      const handleElementoActualizado = () => queryClient.invalidateQueries(['elementos', id]);
-      const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
-      const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
-      const handleElementosEliminados = () => queryClient.invalidateQueries(['elementos', id]);
+    unirseALista(id);
 
-      escucharEvento('connect', handleConnect);
-      escucharEvento('elemento-creado', handleElementoCreado);
-      escucharEvento('elemento-completado', handleElementoCompletado);
-      escucharEvento('elemento-actualizado', handleElementoActualizado);
-      escucharEvento('elemento-eliminado', handleElementoEliminado);
-      escucharEvento('elementos-reordenados', handleElementosReordenados);
-      escucharEvento('elementos-eliminados', handleElementosEliminados);
+    const handleConnect = () => unirseALista(id);
+    const handleElementoCreado = () => queryClient.invalidateQueries(['elementos', id]);
+    const handleElementoCompletado = () => queryClient.invalidateQueries(['elementos', id]);
+    const handleElementoActualizado = () => queryClient.invalidateQueries(['elementos', id]);
+    const handleElementoEliminado = () => queryClient.invalidateQueries(['elementos', id]);
+    const handleElementosReordenados = () => queryClient.invalidateQueries(['elementos', id]);
+    const handleElementosEliminados = () => queryClient.invalidateQueries(['elementos', id]);
 
-      return () => {
-        dejarDeEscuchar('connect', handleConnect);
-        dejarDeEscuchar('elemento-creado', handleElementoCreado);
-        dejarDeEscuchar('elemento-completado', handleElementoCompletado);
-        dejarDeEscuchar('elemento-actualizado', handleElementoActualizado);
-        dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
-        dejarDeEscuchar('elementos-reordenados', handleElementosReordenados);
-        dejarDeEscuchar('elementos-eliminados', handleElementosEliminados);
-      };
-    }
-  }, [id]);
+    escucharEvento('connect', handleConnect);
+    escucharEvento('elemento-creado', handleElementoCreado);
+    escucharEvento('elemento-completado', handleElementoCompletado);
+    escucharEvento('elemento-actualizado', handleElementoActualizado);
+    escucharEvento('elemento-eliminado', handleElementoEliminado);
+    escucharEvento('elementos-reordenados', handleElementosReordenados);
+    escucharEvento('elementos-eliminados', handleElementosEliminados);
+
+    return () => {
+      dejarDeEscuchar('connect', handleConnect);
+      dejarDeEscuchar('elemento-creado', handleElementoCreado);
+      dejarDeEscuchar('elemento-completado', handleElementoCompletado);
+      dejarDeEscuchar('elemento-actualizado', handleElementoActualizado);
+      dejarDeEscuchar('elemento-eliminado', handleElementoEliminado);
+      dejarDeEscuchar('elementos-reordenados', handleElementosReordenados);
+      dejarDeEscuchar('elementos-eliminados', handleElementosEliminados);
+    };
+  }, [socket, id, unirseALista, escucharEvento, dejarDeEscuchar, queryClient]);
 
   function handleCrearElemento(e) {
     e.preventDefault();
