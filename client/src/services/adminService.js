@@ -1,7 +1,7 @@
 import api from './api';
 
 export async function obtenerUsuarios() {
-  const response = await api.get('/admin/usuarios');
+  const response = await api.get('/admin');
   return response.data;
 }
 
