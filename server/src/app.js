@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const { CLIENT_URL } = require('./config/env');
 
 const authRoutes = require('./modules/auth/auth.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
 const listsRoutes = require('./modules/lists/lists.routes');
 const itemsRoutes = require('./modules/items/items.routes');
 const invitationsRoutes = require('./modules/invitations/invitations.routes');
@@ -31,6 +32,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/listas', listsRoutes);
 app.use('/api/listas/:listaId/elementos', itemsRoutes);
 app.use('/api', invitationsRoutes);

@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ListDetailPage from './pages/ListDetailPage';
 import InvitationAcceptPage from './pages/InvitationAcceptPage';
+import AdminUsersPage from './pages/AdminUsersPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -20,6 +21,28 @@ function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const { usuario, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (usuario?.rol !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -87,6 +110,14 @@ export default function App() {
         }
       />
       <Route path="/invitacion/:token" element={<InvitationAcceptPage />} />
+      <Route
+        path="/admin/usuarios"
+        element={
+          <AdminRoute>
+            <AdminUsersPage />
+          </AdminRoute>
+        }
+      />
     </Routes>
   );
 }

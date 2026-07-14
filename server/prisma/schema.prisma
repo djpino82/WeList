@@ -18,6 +18,7 @@ model Usuario {
   nombre       String
   email        String   @unique
   passwordHash String   @map("password_hash")
+  rol          String   @default("usuario")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

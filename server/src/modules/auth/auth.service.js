@@ -77,7 +77,7 @@ async function login(email, password) {
 async function obtenerPerfil(usuarioId) {
   const usuario = await prisma.usuario.findUnique({
     where: { id: usuarioId },
-    select: { id: true, nombre: true, email: true, createdAt: true },
+    select: { id: true, nombre: true, email: true, rol: true, createdAt: true },
   });
 
   if (!usuario) {
